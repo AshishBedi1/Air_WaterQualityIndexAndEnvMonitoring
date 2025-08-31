@@ -19,13 +19,13 @@ export default function Dashboard() {
   const [airData, setAirData] = useState(null);
   const [city, setCity] = useState("mumbai");
   const [searchInput, setSearchInput] = useState("");
-  const [error, setError] = useState(null); // ✅ error state
+  const [error, setError] = useState(null);
 
   // fetch function
   async function fetchAirQuality(selectedCity) {
     try {
-      setError(null); // reset error before fetching
-      setAirData(null); // reset old data while loading
+      setError(null);
+      setAirData(null);
 
       const res = await fetch(
         `https://api.waqi.info/feed/${selectedCity}/?token=${process.env.NEXT_PUBLIC_WAQI_TOKEN}`
@@ -44,11 +44,11 @@ export default function Dashboard() {
           city: json.data.city.name,
         });
       } else {
-        setError(`❌ No data found for "${selectedCity}". Please try another city.`);
+        setError(` No data found for "${selectedCity}". Please try another city.`);
       }
     } catch (err) {
       console.error("Failed to fetch AQI:", err);
-      setError("⚠️ Something went wrong while fetching air quality. Try again later.");
+      setError(" Something went wrong while fetching air quality. Try again later.");
     }
   }
 
@@ -56,38 +56,52 @@ export default function Dashboard() {
     fetchAirQuality(city);
   }, [city]);
 
-  // ✅ Chart Data
+  // Chart Data
   const airChartData = airData
     ? [
-      { name: "AQI", value: airData.aqi, color: "#6366F1" },
-      { name: "PM2.5", value: airData.pm2_5, color: "#EF4444" },
-      { name: "PM10", value: airData.pm10, color: "#F59E0B" },
-      { name: "CO₂", value: airData.co2, color: "#10B981" },
-      { name: "NO₂", value: airData.no2, color: "#3B82F6" },
-      { name: "SO₂", value: airData.so2, color: "#8B5CF6" },
-      { name: "O₃", value: airData.o3, color: "#EC4899" },
-    ]
+        { name: "AQI", value: airData.aqi, color: "#6366F1" },
+        { name: "PM2.5", value: airData.pm2_5, color: "#EF4444" },
+        { name: "PM10", value: airData.pm10, color: "#F59E0B" },
+        { name: "CO₂", value: airData.co2, color: "#10B981" },
+        { name: "NO₂", value: airData.no2, color: "#3B82F6" },
+        { name: "SO₂", value: airData.so2, color: "#8B5CF6" },
+        { name: "O₃", value: airData.o3, color: "#EC4899" },
+      ]
     : [];
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col p-6">
-        <h2 className="text-2xl font-bold mb-10">Env Monitor</h2>
-        <button
-          onClick={() => setView("air")}
-          className={`mb-4 p-3 rounded-lg text-left transition ${view === "air" ? "bg-gray-700" : "hover:bg-gray-800"
-            }`}
-        >
-          🌍 Air Quality
-        </button>
-        <button
-          onClick={() => setView("water")}
-          className={`p-3 rounded-lg text-left transition ${view === "water" ? "bg-gray-700" : "hover:bg-gray-800"
-            }`}
-        >
-          💧 Water Quality
-        </button>
+      <aside className="w-64 bg-gray-900/95 backdrop-blur-lg text-white flex flex-col p-6 shadow-2xl rounded-r-3xl">
+        {/* Brand */}
+        <h2 className="text-2xl font-bold mb-10 tracking-wide flex items-center gap-2">
+          🌱 Env Monitor
+        </h2>
+
+        {/* Menu */}
+        <nav className="flex flex-col gap-4">
+          <button
+            onClick={() => setView("air")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left font-medium transition-all duration-300
+              ${view === "air"
+                ? "bg-indigo-600 shadow-lg scale-105"
+                : "hover:bg-gray-800 hover:scale-105"
+              }`}
+          >
+            <span className="text-xl">🌍</span> Air Quality
+          </button>
+
+          <button
+            onClick={() => setView("water")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left font-medium transition-all duration-300
+              ${view === "water"
+                ? "bg-sky-500 shadow-lg scale-105"
+                : "hover:bg-gray-800 hover:scale-105"
+              }`}
+          >
+            <span className="text-xl">💧</span> Water Quality
+          </button>
+        </nav>        
       </aside>
 
       {/* Main Content */}
@@ -97,7 +111,7 @@ export default function Dashboard() {
             {/* 🔍 Search Bar */}
             <form
               onSubmit={(e) => {
-                e.preventDefault(); // prevents page reload
+                e.preventDefault();
                 if (searchInput.trim() !== "") setCity(searchInput.trim());
               }}
               className="mb-6 flex w-full max-w-lg"
@@ -116,7 +130,6 @@ export default function Dashboard() {
                 Search
               </button>
             </form>
-
 
             {/* Error or Data */}
             {error && (
@@ -146,6 +159,7 @@ export default function Dashboard() {
                     </BarChart>
                   </ResponsiveContainer>
 
+                  {/* Legend */}
                   <div className="grid grid-cols-3 gap-4 mt-6 text-sm text-center">
                     {airChartData.map((item, i) => (
                       <div key={i}>
@@ -165,7 +179,7 @@ export default function Dashboard() {
           </>
         )}
 
-        {/* Water Section (unchanged) */}
+        {/* Water Section */}
         {view === "water" && <WaterQualityCard data={{}} />}
       </main>
     </div>
